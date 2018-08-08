@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 
 const CHOICES = fs.readdirSync(`${__dirname}/templates/projects`);
+const EXTRAS = ["None", ...fs.readdirSync(`${__dirname}/templates/extras`)];
 
 const QUESTIONS = [
   {
@@ -10,6 +11,17 @@ const QUESTIONS = [
     type: 'list',
     message: 'What project template would you like to generate?',
     choices: CHOICES
+  },
+  {
+    name: 'project-extras',
+    type: 'list',
+    message: 'What project extras would you like to generate?',
+    choices: EXTRAS
+  },
+  {
+    name: 'project-author',
+    type: 'input',
+    message: 'Who is the author of this project?',
   },
   {
     name: 'project-name',
@@ -32,10 +44,10 @@ inquirer.prompt(QUESTIONS)
   
     fs.mkdirSync(`${CURR_DIR}/${projectName}`);
 
-    createDirectoryContents(templatePath, projectName);
+    createDirectoryContents(templatePath, projectName, answers);
 });
 
-function createDirectoryContents (templatePath, newProjectPath) {
+function createDirectoryContents (templatePath, newProjectPath, answers) {
     const filesToCreate = fs.readdirSync(templatePath);
   
     filesToCreate.forEach(file => {
@@ -49,14 +61,40 @@ function createDirectoryContents (templatePath, newProjectPath) {
         
         //Renaming npmignore back to gitignore
         if (file === '.npmignore') file = '.gitignore';
+        
+        const replaceVariables ={
+            "{{PROJECT_NAME}}": answers['project-name'],
+            "{{AUTHOR}}": answers['project-author']
+        }
 
         const writePath = `${CURR_DIR}/${newProjectPath}/${file}`;
-        fs.writeFileSync(writePath, contents, 'utf8');
+        createFileWithVariables(origFilePath,writePath, replaceVariables )
+        
       } else if (stats.isDirectory()) {
         fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
         
         // recursive call
-        createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`);
+        createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`, answers);
       }
+    });
+  }
+
+  function createFileWithVariables(originalPath, destinyPath, replaceObject){
+    fs.readFile(originalPath, 'utf8', function(err, data) {
+        if (err) {
+          return console.log(err);
+        }
+        
+        for(let key in replaceObject){
+            if(!replaceObject.hasOwnProperty(key)) continue;
+
+            var result = data.replace(key, replaceObject[key]);
+        }
+
+        fs.writeFile(destinyPath, result, 'utf8', function(err) {
+            if (err) {
+               return console.log(err);
+            };
+        });
     });
   }
