@@ -54,7 +54,7 @@ inquirer.prompt(QUESTIONS)
 
     let packageJson = [];
 
-    [...extrasPath, templatePath].forEach(path => {
+    [templatePath, ...extrasPath].forEach(path => {
         createDirectoryContents(path, projectName, packageJson, replaceVariables)
     });
     

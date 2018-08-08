@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "generate": "./index.js"
+    "lets-start": "./index.js"
   },
   "repository": {
     "type": "git",

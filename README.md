@@ -9,9 +9,10 @@ article [Creating a project generator with Node](https://medium.com/northcoders/
 > $ git clone https://github.com/Trovarius/npm-template-project.git
 > $ cd npm-templace-project
 > $ npm install -g
-> $ generate
+> $ lets-start
 
 ### Install from github
 > $ npm install -g git+https://github.com/Trovarius/npm-template-project.git
+> $ lets-start
 
 Choose which template and extras you like to use in your new project and name it.
