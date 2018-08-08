@@ -13,7 +13,8 @@ article [Creating a project generator with Node](https://medium.com/northcoders/
 ```
 
 ### Install from github
-> $ npm install -g git+https://github.com/Trovarius/npm-template-project.git
-> $ lets-start
-
+```
+ $ npm install -g git+https://github.com/Trovarius/npm-template-project.git
+ $ lets-start
+```
 Choose which template and extras you like to use in your new project and name it.
