@@ -4,7 +4,6 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-      "test": "node .\\node_modules\\mocha\\bin\\mocha .\\test\\**\\*.test.js",
       "start": "node .\\node_modules\\nodemon\\bin\\nodemon.js index.js"
     },
     "keywords": [],

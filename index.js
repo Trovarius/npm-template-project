@@ -1,9 +1,10 @@
 #!/usr/bin/env/ node
 const inquirer = require('inquirer');
+const deepmerge = require('deepmerge');
 const fs = require('fs');
 
 const CHOICES = fs.readdirSync(`${__dirname}/templates/projects`);
-const EXTRAS = ["None", ...fs.readdirSync(`${__dirname}/templates/extras`)];
+const EXTRAS = fs.readdirSync(`${__dirname}/templates/extras`);
 
 const QUESTIONS = [
   {
@@ -14,7 +15,7 @@ const QUESTIONS = [
   },
   {
     name: 'project-extras',
-    type: 'list',
+    type: 'checkbox',
     message: 'What project extras would you like to generate?',
     choices: EXTRAS
   },
@@ -38,16 +39,31 @@ const CURR_DIR = process.cwd();
 
 inquirer.prompt(QUESTIONS)
   .then(answers => {
+    console.log(answers);
     const projectChoice = answers['project-choice'];
     const projectName = answers['project-name'];
     const templatePath = `${__dirname}/templates/projects/${projectChoice}`;
-  
+    const extrasPath = answers['project-extras'].map(extra => `${__dirname}/templates/extras/${extra}`);
+    
+    const replaceVariables ={
+        "{{PROJECT_NAME}}": answers['project-name'],
+        "{{AUTHOR}}": answers['project-author']
+    }
+
     fs.mkdirSync(`${CURR_DIR}/${projectName}`);
 
-    createDirectoryContents(templatePath, projectName, answers);
+    let packageJson = [];
+
+    [...extrasPath, templatePath].forEach(path => {
+        createDirectoryContents(path, projectName, packageJson, replaceVariables)
+    });
+    
+    const writePath = `${CURR_DIR}/${projectName}/package.json`;
+
+    unifyPackageJson(writePath, packageJson, replaceVariables)
 });
 
-function createDirectoryContents (templatePath, newProjectPath, answers) {
+function createDirectoryContents (templatePath, newProjectPath, packageJson, replaceVariables) {
     const filesToCreate = fs.readdirSync(templatePath);
   
     filesToCreate.forEach(file => {
@@ -55,18 +71,16 @@ function createDirectoryContents (templatePath, newProjectPath, answers) {
       
       // get stats about the current file
       const stats = fs.statSync(origFilePath);
-  
-      if (stats.isFile()) {
+      if(file === "package.json"){
+        const contents = fs.readFileSync(origFilePath, 'utf8');
+        packageJson.push(contents);
+
+      } else if (stats.isFile()) {
         const contents = fs.readFileSync(origFilePath, 'utf8');
         
         //Renaming npmignore back to gitignore
         if (file === '.npmignore') file = '.gitignore';
-        
-        const replaceVariables ={
-            "{{PROJECT_NAME}}": answers['project-name'],
-            "{{AUTHOR}}": answers['project-author']
-        }
-
+    
         const writePath = `${CURR_DIR}/${newProjectPath}/${file}`;
         createFileWithVariables(origFilePath,writePath, replaceVariables )
         
@@ -74,8 +88,32 @@ function createDirectoryContents (templatePath, newProjectPath, answers) {
         fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
         
         // recursive call
-        createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`, answers);
+        createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`,packageJson, replaceVariables);
       }
+    });
+  }
+
+  function unifyPackageJson(destinyPath, packagesJson, replaceObject){
+    var uniquePackage = {};
+
+    for(let index in packagesJson){
+        let package = packagesJson[index];
+
+        for(let key in replaceObject){
+            if(!replaceObject.hasOwnProperty(key)) continue;
+
+            package = package.replace(key, replaceObject[key]);
+        }
+        
+        uniquePackage = deepmerge(uniquePackage, JSON.parse(package))
+    }
+    
+    console.log(uniquePackage);
+
+    fs.writeFile(destinyPath, JSON.stringify(uniquePackage), 'utf8', function(err) {
+        if (err) {
+           return console.log(err);
+        };
     });
   }
 
