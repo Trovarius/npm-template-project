@@ -5,10 +5,12 @@ article [Creating a project generator with Node](https://medium.com/northcoders/
 ## How to use
 
 ### Donwloading and install
-> $ git clone https://github.com/Trovarius/npm-template-project.git
-> $ cd npm-templace-project
-> $ npm install -g
-> $ lets-start
+```
+ $ git clone https://github.com/Trovarius/npm-template-project.git
+ $ cd npm-templace-project
+ $ npm install -g
+ $ lets-start
+```
 
 ### Install from github
 > $ npm install -g git+https://github.com/Trovarius/npm-template-project.git
