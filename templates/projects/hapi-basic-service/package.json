@@ -1,0 +1,23 @@
+{
+    "name": "{{PROJECT_NAME}}",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "node .\\node_modules\\mocha\\bin\\mocha .\\test\\**\\*.test.js",
+      "start": "node .\\node_modules\\nodemon\\bin\\nodemon.js index.js"
+    },
+    "keywords": [],
+    "author": "{{AUTHOR}}",
+    "license": "MIT",
+    "dependencies": {
+      "hapi": "^17.5.2",
+      "inert": "^5.1.0"
+    },
+    "devDependencies": {
+      "chai": "^4.1.2",
+      "mocha": "^5.2.0",
+      "nodemon": "^1.18.3"
+    }
+  }
+  
